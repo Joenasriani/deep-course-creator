@@ -45,9 +45,10 @@ The sub-topic is described as: "${description}".
 
 The tutorial must be broken down into the following distinct sections and returned as a single JSON object adhering to the provided schema:
 1.  **introduction**: A brief, engaging paragraph introducing the topic.
-2.  **coreConcepts**: An array of 2-4 core concepts. Each concept should have a clear 'title' and a detailed 'explanation'.
-3.  **keyTakeaway**: A concise summary of the most important point of the tutorial.
-4.  **interactiveCheck**: A single multiple-choice question to quickly test understanding. It must have 4 options and one correct answer.
+2.  **introImageUrl**: A URL for a relevant image for the introduction. The URL must be from source.unsplash.com, formatted as 'https://source.unsplash.com/1200x600/?<search-keywords-here>'. Use descriptive, relevant keywords.
+3.  **coreConcepts**: An array of 2-4 core concepts. Each concept should have a clear 'title', a detailed 'explanation', and an 'imageUrl' from source.unsplash.com, formatted similarly.
+4.  **keyTakeaway**: A concise summary of the most important point of the tutorial.
+5.  **interactiveCheck**: A single multiple-choice question to quickly test understanding. It must have 4 options and one correct answer.
 
 For all text fields ('introduction', 'explanation', 'keyTakeaway'), use Markdown for rich formatting (like **bold text**, *italics*, bulleted lists using '-', and \`code snippets\`). The content should be clear, well-structured, and easy for a beginner to digest.
 `;
@@ -56,6 +57,7 @@ export const TUTORIAL_SCHEMA = {
     type: Type.OBJECT,
     properties: {
         introduction: { type: Type.STRING, description: "A brief, engaging introduction to the sub-topic in Markdown format." },
+        introImageUrl: { type: Type.STRING, description: "A relevant image URL from source.unsplash.com." },
         coreConcepts: {
             type: Type.ARRAY,
             description: "An array of core concepts, each with a title and a detailed explanation.",
@@ -64,8 +66,9 @@ export const TUTORIAL_SCHEMA = {
                 properties: {
                     title: { type: Type.STRING, description: "The title of the core concept." },
                     explanation: { type: Type.STRING, description: "A detailed explanation of the concept in Markdown format." },
+                    imageUrl: { type: Type.STRING, description: "A relevant image URL from source.unsplash.com." },
                 },
-                required: ['title', 'explanation'],
+                required: ['title', 'explanation', 'imageUrl'],
             }
         },
         keyTakeaway: { type: Type.STRING, description: "A concise summary of the most important point in Markdown format." },
@@ -84,7 +87,7 @@ export const TUTORIAL_SCHEMA = {
             required: ['question', 'options', 'correctAnswer']
         }
     },
-    required: ['introduction', 'coreConcepts', 'keyTakeaway', 'interactiveCheck'],
+    required: ['introduction', 'introImageUrl', 'coreConcepts', 'keyTakeaway', 'interactiveCheck'],
 };
 
 

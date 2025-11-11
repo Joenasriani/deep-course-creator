@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Course } from '../types';
 import { LockClosedIcon, CheckCircleIcon, PlayIcon, LoadingSpinner } from './icons';
@@ -20,11 +19,37 @@ const CourseView: React.FC<CourseViewProps> = ({ course, onSelectSubTopic, isLoa
         }
     };
 
+    const { totalSubTopics, completedSubTopics, completionPercentage } = React.useMemo(() => {
+        const allSubTopics = course.modules.flatMap(module => module.subTopics);
+        const total = allSubTopics.length;
+        const completed = allSubTopics.filter(st => st.isCompleted).length;
+        const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+        return {
+            totalSubTopics: total,
+            completedSubTopics: completed,
+            completionPercentage: percentage,
+        };
+    }, [course]);
+
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold text-center mb-2 text-indigo-400">{course.syllabusTitle}</h1>
       <p className="text-center text-gray-400 mb-10">Your personalized learning path. Complete each sub-topic to unlock the next.</p>
       
+      <div className="mb-12 px-4">
+        <div className="flex justify-between items-center mb-2 text-sm font-medium text-gray-300">
+            <span>Overall Progress</span>
+            <span className="font-semibold text-indigo-400">{completionPercentage}%</span>
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-3" role="progressbar" aria-label="Course completion progress" aria-valuenow={completionPercentage} aria-valuemin="0" aria-valuemax="100">
+            <div 
+                className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500 ease-out" 
+                style={{ width: `${completionPercentage}%` }}
+            ></div>
+        </div>
+        <p className="text-right text-xs text-gray-400 mt-1">{completedSubTopics} of {totalSubTopics} topics completed</p>
+      </div>
+
       <div className="space-y-8">
         {course.modules.map((module, moduleIndex) => (
           <div key={moduleIndex} className="bg-gray-800/50 rounded-lg shadow-xl p-6 border border-gray-700">

@@ -14,10 +14,12 @@ export interface InteractiveCheck {
 export interface CoreConcept {
   title: string;
   explanation: string; // Markdown content
+  imageUrl?: string;
 }
 
 export interface TutorialContent {
   introduction: string; // Markdown content
+  introImageUrl?: string;
   coreConcepts: CoreConcept[];
   keyTakeaway: string; // Markdown content
   interactiveCheck: InteractiveCheck;

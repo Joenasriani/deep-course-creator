@@ -93,11 +93,18 @@ const TutorialView: React.FC<TutorialViewProps> = ({ subTopic, onBack, onStartQu
             <p className="text-gray-400 mb-8">{subTopic.description}</p>
             
             <article className="prose prose-invert max-w-none prose-p:text-gray-300 prose-strong:text-white prose-a:text-indigo-400">
+                {tutorialContent.introImageUrl && (
+                    <img src={tutorialContent.introImageUrl} alt={subTopic.subTopicTitle} className="w-full rounded-lg mb-6 shadow-lg object-cover max-h-[400px]" />
+                )}
+
                 <div dangerouslySetInnerHTML={{ __html: marked.parse(tutorialContent.introduction) }} />
                 
                 {tutorialContent.coreConcepts.map((concept, index) => (
-                    <section key={index} className="mt-6">
+                    <section key={index} className="mt-8">
                         <h2>{concept.title}</h2>
+                        {concept.imageUrl && (
+                             <img src={concept.imageUrl} alt={concept.title} className="w-full rounded-lg my-4 shadow-lg object-cover max-h-[300px]" />
+                        )}
                         <div dangerouslySetInnerHTML={{ __html: marked.parse(concept.explanation) }} />
                     </section>
                 ))}
