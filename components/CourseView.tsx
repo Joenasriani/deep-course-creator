@@ -1,14 +1,16 @@
 import React from 'react';
 import type { Course } from '../types';
 import { LockClosedIcon, CheckCircleIcon, PlayIcon, LoadingSpinner } from './icons';
+import AdminUnlock from './AdminUnlock';
 
 interface CourseViewProps {
   course: Course;
   onSelectSubTopic: (moduleIndex: number, subTopicIndex: number) => void;
   isLoading: boolean;
+  onUnlockAll: () => void;
 }
 
-const CourseView: React.FC<CourseViewProps> = ({ course, onSelectSubTopic, isLoading }) => {
+const CourseView: React.FC<CourseViewProps> = ({ course, onSelectSubTopic, isLoading, onUnlockAll }) => {
     const [loadingSubTopic, setLoadingSubTopic] = React.useState<string | null>(null);
 
     const handleSubTopicClick = (moduleIndex: number, subTopicIndex: number) => {
@@ -51,47 +53,71 @@ const CourseView: React.FC<CourseViewProps> = ({ course, onSelectSubTopic, isLoa
       </div>
 
       <div className="space-y-8">
-        {course.modules.map((module, moduleIndex) => (
-          <div key={moduleIndex} className="bg-gray-800/50 rounded-lg shadow-xl p-6 border border-gray-700">
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-              <span className="text-indigo-500">Module {moduleIndex + 1}:</span> {module.moduleTitle}
-            </h2>
-            <ul className="space-y-3">
-              {module.subTopics.map((subTopic, subTopicIndex) => {
-                const isClickable = subTopic.isUnlocked && !subTopic.isCompleted;
-                const isLoadingThis = isLoading && loadingSubTopic === `${moduleIndex}-${subTopicIndex}`;
+        {course.modules.map((module, moduleIndex) => {
+           const titleMatch = module.moduleTitle.match(/^(Module\s*\d+:)(.*)/i);
+            let modulePrefix: string;
+            let moduleTitleText: string;
 
-                return (
-                  <li
-                    key={subTopicIndex}
-                    onClick={() => handleSubTopicClick(moduleIndex, subTopicIndex)}
-                    className={`flex items-center justify-between p-4 rounded-md transition-all duration-300 ease-in-out ${
-                      isClickable
-                        ? 'bg-gray-700 hover:bg-indigo-900/50 hover:shadow-lg hover:scale-[1.02] cursor-pointer'
-                        : 'bg-gray-800 opacity-60'
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      {subTopic.isCompleted ? (
-                        <CheckCircleIcon className="w-6 h-6 text-green-500 flex-shrink-0" />
-                      ) : subTopic.isUnlocked ? (
-                        <PlayIcon className="w-6 h-6 text-indigo-400 flex-shrink-0" />
-                      ) : (
-                        <LockClosedIcon className="w-6 h-6 text-gray-500 flex-shrink-0" />
-                      )}
-                      <div>
-                        <p className="font-semibold text-white">{subTopic.subTopicTitle}</p>
-                        <p className="text-sm text-gray-400">{subTopic.description}</p>
+            if (titleMatch && titleMatch[1] && titleMatch[2]) {
+                modulePrefix = titleMatch[1];
+                moduleTitleText = titleMatch[2].trim();
+            } else {
+                modulePrefix = `Module ${moduleIndex + 1}:`;
+                moduleTitleText = module.moduleTitle;
+            }
+
+          return (
+            <div 
+              key={moduleIndex} 
+              className={`bg-gray-800/50 rounded-lg shadow-xl p-6 border transition-all duration-300 ${
+                module.isCompleted 
+                  ? 'border-green-500/30 shadow-green-900/20' 
+                  : 'border-gray-700'
+              }`}
+            >
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                {module.isCompleted && <CheckCircleIcon className="w-7 h-7 text-green-500 flex-shrink-0" />}
+                <span className="text-indigo-500">{modulePrefix}</span>
+                <span>{moduleTitleText}</span>
+              </h2>
+              <ul className="space-y-3">
+                {module.subTopics.map((subTopic, subTopicIndex) => {
+                  const isClickable = subTopic.isUnlocked && !subTopic.isCompleted;
+                  const isLoadingThis = isLoading && loadingSubTopic === `${moduleIndex}-${subTopicIndex}`;
+
+                  return (
+                    <li
+                      key={subTopicIndex}
+                      onClick={() => handleSubTopicClick(moduleIndex, subTopicIndex)}
+                      className={`flex items-center justify-between p-4 rounded-md transition-all duration-300 ease-in-out ${
+                        isClickable
+                          ? 'bg-gray-700 hover:bg-indigo-900/50 hover:shadow-lg hover:scale-[1.02] cursor-pointer'
+                          : 'bg-gray-800 opacity-60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        {subTopic.isCompleted ? (
+                          <CheckCircleIcon className="w-6 h-6 text-green-500 flex-shrink-0" />
+                        ) : subTopic.isUnlocked ? (
+                          <PlayIcon className="w-6 h-6 text-indigo-400 flex-shrink-0" />
+                        ) : (
+                          <LockClosedIcon className="w-6 h-6 text-gray-500 flex-shrink-0" />
+                        )}
+                        <div>
+                          <p className="font-semibold text-white">{subTopic.subTopicTitle}</p>
+                          <p className="text-sm text-gray-400">{subTopic.description}</p>
+                        </div>
                       </div>
-                    </div>
-                    {isLoadingThis && <LoadingSpinner className="w-5 h-5 text-white" />}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        ))}
+                      {isLoadingThis && <LoadingSpinner className="w-5 h-5 text-white" />}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          );
+        })}
       </div>
+      <AdminUnlock onUnlockAll={onUnlockAll} />
     </div>
   );
 };

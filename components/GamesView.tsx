@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import type { Game, MatchingGameData, FillInTheBlanksGameData, TrueFalseGameData } from '../types';
 
@@ -15,6 +14,7 @@ const MatchingGame: React.FC<{ game: Game }> = ({ game }) => {
     const [selectedTerm, setSelectedTerm] = useState<string | null>(null);
     const [matchedPairs, setMatchedPairs] = useState<Record<string, string>>({});
     const [feedback, setFeedback] = useState('');
+    const [incorrectDef, setIncorrectDef] = useState<string | null>(null);
 
     const handleTermClick = (term: string) => {
         if (matchedPairs[term]) return;
@@ -30,6 +30,8 @@ const MatchingGame: React.FC<{ game: Game }> = ({ game }) => {
             setFeedback('Correct!');
         } else {
             setFeedback('Incorrect, try again.');
+            setIncorrectDef(definition);
+            setTimeout(() => setIncorrectDef(null), 1000);
         }
         setSelectedTerm(null);
         setTimeout(() => setFeedback(''), 1500);
@@ -49,7 +51,7 @@ const MatchingGame: React.FC<{ game: Game }> = ({ game }) => {
                 <div className="space-y-2">
                     {definitions.map(def => (
                         <button key={def} onClick={() => handleDefinitionClick(def)} disabled={Object.values(matchedPairs).includes(def)}
-                            className={`w-full p-3 rounded-md text-left transition-colors ${Object.values(matchedPairs).includes(def) ? 'bg-green-700 cursor-not-allowed' : 'bg-gray-700 hover:bg-gray-600'}`}>
+                            className={`w-full p-3 rounded-md text-left transition-colors ${Object.values(matchedPairs).includes(def) ? 'bg-green-700 cursor-not-allowed' : incorrectDef === def ? 'bg-red-700' : 'bg-gray-700 hover:bg-gray-600'}`}>
                             {def}
                         </button>
                     ))}
@@ -141,7 +143,10 @@ const GamesView: React.FC<{ games: Game[] }> = ({ games }) => {
     }
     return (
         <div>
-            <h2 className="text-3xl font-bold text-center mb-8">Educational Games</h2>
+            <h2 className="text-3xl font-bold text-center mb-4">Educational Games</h2>
+            <p className="text-center text-gray-400 mb-8">
+                Here's a quick check on your existing knowledge. As you complete modules in the course, new games will appear here to test what you've learned!
+            </p>
             <div className="space-y-8 max-w-4xl mx-auto">
                 {games.map((game, index) => (
                     <div key={index} className="bg-gray-800/50 rounded-lg shadow-xl p-6 border border-gray-700">

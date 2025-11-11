@@ -1,7 +1,6 @@
-
 import React, { useState, useCallback } from 'react';
 import type { Course, Game } from './types';
-import { generateSyllabus, generateTutorial, generateQuiz, generateGame } from './services/geminiService';
+import { generateSyllabus, generateTutorial, generateQuiz, generateGame, generateInitialGame } from './services/geminiService';
 import TopicInput from './components/TopicInput';
 import CourseView from './components/CourseView';
 import QuizView from './components/QuizView';
@@ -30,16 +29,22 @@ const App: React.FC = () => {
         setActiveContent(null);
         setError(null);
         try {
-            const syllabus = await generateSyllabus(newTopic);
+            // Generate syllabus and initial game in parallel
+            const [syllabus, initialGame] = await Promise.all([
+                generateSyllabus(newTopic),
+                generateInitialGame(newTopic)
+            ]);
+
             // Unlock the first sub-topic
             if (syllabus.modules.length > 0 && syllabus.modules[0].subTopics.length > 0) {
                 syllabus.modules[0].subTopics[0].isUnlocked = true;
             }
             setCourse(syllabus);
+            setGames([initialGame]); // Set the initial game
             setAppState('learning');
         } catch (err) {
             console.error(err);
-            setError('Failed to generate the syllabus. The AI may be busy, please try again.');
+            setError('Failed to generate the course. The AI may be busy, please try again.');
             setAppState('error');
         }
     };
@@ -112,6 +117,17 @@ const App: React.FC = () => {
         setActiveContent(null);
     }, [course]);
     
+    const handleUnlockAll = useCallback(() => {
+        if (!course) return;
+        const newCourse = JSON.parse(JSON.stringify(course)); // Deep copy to ensure reactivity
+        newCourse.modules.forEach((module: any) => {
+            module.subTopics.forEach((subTopic: any) => {
+                subTopic.isUnlocked = true;
+            });
+        });
+        setCourse(newCourse);
+    }, [course]);
+
     const renderContent = () => {
         if (appState === 'generatingSyllabus') {
             return (
@@ -164,6 +180,7 @@ const App: React.FC = () => {
                         course={course} 
                         onSelectSubTopic={handleSelectSubTopic}
                         isLoading={contentLoading} 
+                        onUnlockAll={handleUnlockAll}
                     />
                 </div>
             );

@@ -89,21 +89,33 @@ const TutorialView: React.FC<TutorialViewProps> = ({ subTopic, onBack, onStartQu
              <button onClick={onBack} className="mb-6 px-4 py-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors">
                 &larr; Back to Syllabus
             </button>
-            <h2 className="text-3xl lg:text-4xl font-bold text-indigo-400 mb-2">{subTopic.subTopicTitle}</h2>
+            <h1 className="text-3xl lg:text-4xl font-bold text-indigo-400 mb-2">{subTopic.subTopicTitle}</h1>
             <p className="text-gray-400 mb-8">{subTopic.description}</p>
             
             <article className="prose prose-invert max-w-none prose-p:text-gray-300 prose-strong:text-white prose-a:text-indigo-400">
-                {tutorialContent.introImageUrl && (
-                    <img src={tutorialContent.introImageUrl} alt={subTopic.subTopicTitle} className="w-full rounded-lg mb-6 shadow-lg object-cover max-h-[400px]" />
-                )}
-
-                <div dangerouslySetInnerHTML={{ __html: marked.parse(tutorialContent.introduction) }} />
+                {/* Introduction Section */}
+                <section>
+                    <h2 className="text-center text-xl font-semibold uppercase tracking-widest text-gray-400 my-8 border-none p-0">The Core Idea</h2>
+                    {tutorialContent.introImageUrl && (
+                        <div className="not-prose my-6 bg-gray-800 p-2 sm:p-4 rounded-xl border border-gray-700 flex justify-center">
+                            <div className="bg-white p-2 rounded-lg shadow-lg">
+                                <img src={tutorialContent.introImageUrl} alt="Introduction Illustration" className="rounded object-contain max-h-[400px]" />
+                            </div>
+                        </div>
+                    )}
+                    <div dangerouslySetInnerHTML={{ __html: marked.parse(tutorialContent.introduction) }} />
+                </section>
                 
+                {/* Core Concepts Sections */}
                 {tutorialContent.coreConcepts.map((concept, index) => (
-                    <section key={index} className="mt-8">
+                    <section key={index} className="mt-12">
                         <h2>{concept.title}</h2>
                         {concept.imageUrl && (
-                             <img src={concept.imageUrl} alt={concept.title} className="w-full rounded-lg my-4 shadow-lg object-cover max-h-[300px]" />
+                             <div className="not-prose my-6 bg-gray-800 p-2 sm:p-4 rounded-xl border border-gray-700 flex justify-center">
+                                <div className="bg-white p-2 rounded-lg shadow-lg">
+                                    <img src={concept.imageUrl} alt={concept.title} className="rounded object-contain max-h-[300px]" />
+                                </div>
+                            </div>
                         )}
                         <div dangerouslySetInnerHTML={{ __html: marked.parse(concept.explanation) }} />
                     </section>

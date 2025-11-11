@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { SubTopic } from '../types';
+import { generateQuizAdvice } from '../services/geminiService';
 import { CheckCircleIcon, XCircleIcon } from './icons';
 
 interface QuizViewProps {
@@ -11,6 +12,8 @@ interface QuizViewProps {
 const QuizView: React.FC<QuizViewProps> = ({ subTopic, onComplete, onBack }) => {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [advice, setAdvice] = useState<string | null>(null);
+  const [isAdviceLoading, setIsAdviceLoading] = useState(false);
 
   const quiz = useMemo(() => subTopic.quiz || [], [subTopic]);
 
@@ -26,17 +29,46 @@ const QuizView: React.FC<QuizViewProps> = ({ subTopic, onComplete, onBack }) => 
   const handleTryAgain = () => {
     setAnswers({});
     setSubmitted(false);
+    setAdvice(null);
   };
 
   const score = useMemo(() => {
-    if (!submitted) return 0;
     return quiz.reduce((total, question, index) => {
       return answers[index] === question.correctAnswer ? total + 1 : total;
     }, 0);
-  }, [submitted, answers, quiz]);
+  }, [answers, quiz]);
 
   const questionsNeededToPass = 7;
   const hasPassed = score >= questionsNeededToPass;
+
+  useEffect(() => {
+    const generateAndSetAdvice = async () => {
+      if (submitted && !hasPassed) {
+        setIsAdviceLoading(true);
+        setAdvice(null);
+        const incorrectAnswersPayload = quiz
+          .map((q, index) => ({ ...q, userAnswer: answers[index] }))
+          .filter(q => q.userAnswer !== q.correctAnswer)
+          .map(q => ({
+            question: q.question,
+            wrongAnswer: q.userAnswer || 'Not answered',
+            correctAnswer: q.correctAnswer,
+          }));
+
+        try {
+          const generatedAdvice = await generateQuizAdvice(subTopic.subTopicTitle, incorrectAnswersPayload);
+          setAdvice(generatedAdvice);
+        } catch (error) {
+          console.error("Failed to generate advice:", error);
+          setAdvice("Review the topics where you made mistakes and try again. You can do it!");
+        } finally {
+          setIsAdviceLoading(false);
+        }
+      }
+    };
+
+    generateAndSetAdvice();
+  }, [submitted, hasPassed, quiz, answers, subTopic.subTopicTitle]);
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8">
@@ -86,14 +118,22 @@ const QuizView: React.FC<QuizViewProps> = ({ subTopic, onComplete, onBack }) => 
             <h3 className="text-2xl font-bold">Your Score: {score} / {quiz.length}</h3>
             {hasPassed ? (
                 <>
-                    <p className="text-green-400 mt-2">Great job! You scored {score} out of {quiz.length} and passed the quiz.</p>
+                    <p className="text-green-400 mt-2 text-lg">Congratulations! You scored {score} out of {quiz.length} and passed the quiz.</p>
                     <button onClick={onComplete} className="mt-6 px-8 py-3 bg-green-600 text-white font-bold rounded-lg shadow-lg hover:bg-green-700 transition-transform hover:scale-105">
                         Continue Learning
                     </button>
                 </>
             ) : (
                  <>
-                    <p className="text-red-400 mt-2">You need to score at least {questionsNeededToPass}/{quiz.length} to continue. Please review the material and try again.</p>
+                    <p className="text-red-400 mt-2">You need to score at least {questionsNeededToPass}/{quiz.length} to continue.</p>
+                    <div className="mt-4 p-4 bg-gray-900/50 border border-gray-700 rounded-md text-left max-w-2xl mx-auto">
+                       <h4 className="font-semibold text-indigo-400 mb-2">Study Suggestion</h4>
+                       {isAdviceLoading ? (
+                           <p className="text-gray-400 italic">Generating personalized advice...</p>
+                       ) : (
+                           <p className="text-gray-300">{advice}</p>
+                       )}
+                   </div>
                     <button onClick={handleTryAgain} className="mt-6 px-8 py-3 bg-yellow-600 text-white font-bold rounded-lg shadow-lg hover:bg-yellow-700 transition-transform hover:scale-105">
                         Try Again
                     </button>

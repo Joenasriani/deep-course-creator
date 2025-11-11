@@ -1,4 +1,3 @@
-
 import { Type } from '@google/genai';
 
 export const SYLLABUS_PROMPT = (topic: string) => `
@@ -45,10 +44,9 @@ The sub-topic is described as: "${description}".
 
 The tutorial must be broken down into the following distinct sections and returned as a single JSON object adhering to the provided schema:
 1.  **introduction**: A brief, engaging paragraph introducing the topic.
-2.  **introImageUrl**: A URL for a relevant image for the introduction. The URL must be from source.unsplash.com, formatted as 'https://source.unsplash.com/1200x600/?<search-keywords-here>'. Use descriptive, relevant keywords.
-3.  **coreConcepts**: An array of 2-4 core concepts. Each concept should have a clear 'title', a detailed 'explanation', and an 'imageUrl' from source.unsplash.com, formatted similarly.
-4.  **keyTakeaway**: A concise summary of the most important point of the tutorial.
-5.  **interactiveCheck**: A single multiple-choice question to quickly test understanding. It must have 4 options and one correct answer.
+2.  **coreConcepts**: An array of 2-4 core concepts. Each concept should have a clear 'title' and a detailed 'explanation'.
+3.  **keyTakeaway**: A concise summary of the most important point of the tutorial.
+4.  **interactiveCheck**: A single multiple-choice question to quickly test understanding. It must have 4 options and one correct answer.
 
 For all text fields ('introduction', 'explanation', 'keyTakeaway'), use Markdown for rich formatting (like **bold text**, *italics*, bulleted lists using '-', and \`code snippets\`). The content should be clear, well-structured, and easy for a beginner to digest.
 `;
@@ -57,7 +55,6 @@ export const TUTORIAL_SCHEMA = {
     type: Type.OBJECT,
     properties: {
         introduction: { type: Type.STRING, description: "A brief, engaging introduction to the sub-topic in Markdown format." },
-        introImageUrl: { type: Type.STRING, description: "A relevant image URL from source.unsplash.com." },
         coreConcepts: {
             type: Type.ARRAY,
             description: "An array of core concepts, each with a title and a detailed explanation.",
@@ -66,9 +63,8 @@ export const TUTORIAL_SCHEMA = {
                 properties: {
                     title: { type: Type.STRING, description: "The title of the core concept." },
                     explanation: { type: Type.STRING, description: "A detailed explanation of the concept in Markdown format." },
-                    imageUrl: { type: Type.STRING, description: "A relevant image URL from source.unsplash.com." },
                 },
-                required: ['title', 'explanation', 'imageUrl'],
+                required: ['title', 'explanation'],
             }
         },
         keyTakeaway: { type: Type.STRING, description: "A concise summary of the most important point in Markdown format." },
@@ -87,7 +83,7 @@ export const TUTORIAL_SCHEMA = {
             required: ['question', 'options', 'correctAnswer']
         }
     },
-    required: ['introduction', 'introImageUrl', 'coreConcepts', 'keyTakeaway', 'interactiveCheck'],
+    required: ['introduction', 'coreConcepts', 'keyTakeaway', 'interactiveCheck'],
 };
 
 
@@ -157,4 +153,32 @@ export const GAME_SCHEMA = {
         }
     },
     required: ['gameType', 'gameTitle', 'instructions', 'data']
+};
+
+export const INITIAL_GAME_PROMPT = (topic: string) => `
+You are an educational game designer. Your goal is to create a simple introductory knowledge-check game for a course on "${topic}".
+The game should be a "true-false" type to quickly gauge what the user already knows.
+Create a game titled "Initial Knowledge Check: ${topic}".
+Provide brief instructions.
+The game data should consist of 5-7 statements about the topic that can be answered with true or false.
+Return the output as a JSON object that strictly follows the provided schema, with the "gameType" set to "true-false".
+`;
+
+export const QUIZ_ADVICE_PROMPT = (subTopicTitle: string, incorrectAnswers: { question: string; wrongAnswer: string; correctAnswer: string }[]) => `
+You are a helpful and encouraging tutor. A student has just completed a quiz on the topic "${subTopicTitle}".
+They made mistakes on the following questions:
+${incorrectAnswers.map(item => `- Question: "${item.question}"\n  - Their Answer: "${item.wrongAnswer}"\n  - Correct Answer: "${item.correctAnswer}"`).join('\n')}
+
+Based on these specific errors, provide a short (2-3 sentences), friendly, and constructive piece of advice. 
+Focus on the core concepts they might be misunderstanding. Do not just repeat the correct answers.
+For example, if they confused 'mitosis' with 'meiosis', explain the key difference briefly.
+Return the advice as a JSON object with a single "advice" key.
+`;
+
+export const QUIZ_ADVICE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    advice: { type: Type.STRING, description: "Short, constructive advice for the student based on their wrong answers." }
+  },
+  required: ['advice']
 };
