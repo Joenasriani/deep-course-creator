@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality } from "@google/genai";
-import { SYLLABUS_PROMPT, TUTORIAL_PROMPT, QUIZ_PROMPT, GAME_PROMPT, INITIAL_GAME_PROMPT, QUIZ_ADVICE_PROMPT, SYLLABUS_SCHEMA, QUIZ_SCHEMA, GAME_SCHEMA, TUTORIAL_SCHEMA, QUIZ_ADVICE_SCHEMA } from '../constants';
+import { SYLLABUS_PROMPT, TUTORIAL_PROMPT, QUIZ_PROMPT, GAME_PROMPT, INITIAL_GAME_PROMPT, SYLLABUS_SCHEMA, QUIZ_SCHEMA, GAME_SCHEMA, TUTORIAL_SCHEMA } from '../constants';
 import type { Course, QuizQuestion, Game, TutorialContent, CoreConcept } from '../types';
 
 const API_KEY = process.env.API_KEY;
@@ -142,22 +142,4 @@ export const generateGame = async (moduleTitle: string): Promise<Game> => {
     });
 
     return parseJsonResponse<Game>(response.text);
-};
-
-export const generateQuizAdvice = async (subTopicTitle: string, incorrectAnswers: { question: string; wrongAnswer: string; correctAnswer: string }[]): Promise<string> => {
-    if (incorrectAnswers.length === 0) {
-        return "Great job! You seem to have a solid understanding of this topic.";
-    }
-
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: QUIZ_ADVICE_PROMPT(subTopicTitle, incorrectAnswers),
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: QUIZ_ADVICE_SCHEMA,
-        },
-    });
-    
-    const adviceData = parseJsonResponse<{ advice: string }>(response.text);
-    return adviceData.advice;
 };

@@ -20,6 +20,7 @@ const App: React.FC = () => {
     const [activeContent, setActiveContent] = useState<{ type: 'tutorial' | 'quiz', moduleIndex: number, subTopicIndex: number } | null>(null);
     const [contentLoading, setContentLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [hasNewGames, setHasNewGames] = useState<boolean>(false);
 
     const handleTopicSubmit = async (newTopic: string) => {
         setAppState('generatingSyllabus');
@@ -28,6 +29,7 @@ const App: React.FC = () => {
         setGames([]);
         setActiveContent(null);
         setError(null);
+        setHasNewGames(false);
         try {
             // Generate syllabus and initial game in parallel
             const [syllabus, initialGame] = await Promise.all([
@@ -106,7 +108,7 @@ const App: React.FC = () => {
             try {
                 const newGame = await generateGame(currentModule.moduleTitle);
                 setGames(prevGames => [...prevGames, newGame]);
-                // You could add a notification here
+                setHasNewGames(true);
             } catch (err) {
                 console.error("Failed to generate game:", err);
                 // Non-critical error, so we don't block the user.
@@ -203,9 +205,22 @@ const App: React.FC = () => {
                                 <BookOpenIcon className="w-5 h-5"/>
                                 Course
                             </button>
-                            <button onClick={() => setActiveTab('games')} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeTab === 'games' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700'}`}>
+                            <button onClick={() => { setActiveTab('games'); setHasNewGames(false); }} className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${activeTab === 'games' ? 'bg-indigo-600 text-white' : 'text-gray-300 hover:bg-gray-700'}`}>
                                 <GameControllerIcon className="w-5 h-5"/>
-                                Games {games.length > 0 && <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{games.length}</span>}
+                                Games 
+                                {games.length > 0 && (
+                                    <div className="relative">
+                                        <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                            {games.length}
+                                        </span>
+                                        {hasNewGames && (
+                                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </button>
                         </div>
                     )}

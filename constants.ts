@@ -159,26 +159,7 @@ export const INITIAL_GAME_PROMPT = (topic: string) => `
 You are an educational game designer. Your goal is to create a simple introductory knowledge-check game for a course on "${topic}".
 The game should be a "true-false" type to quickly gauge what the user already knows.
 Create a game titled "Initial Knowledge Check: ${topic}".
-Provide brief instructions.
+Provide brief instructions. The instructions must be updated to clearly state: "Read each statement carefully and decide if it is true or false. Select your answer to check your understanding of ${topic} basics.".
 The game data should consist of 5-7 statements about the topic that can be answered with true or false.
 Return the output as a JSON object that strictly follows the provided schema, with the "gameType" set to "true-false".
 `;
-
-export const QUIZ_ADVICE_PROMPT = (subTopicTitle: string, incorrectAnswers: { question: string; wrongAnswer: string; correctAnswer: string }[]) => `
-You are a helpful and encouraging tutor. A student has just completed a quiz on the topic "${subTopicTitle}".
-They made mistakes on the following questions:
-${incorrectAnswers.map(item => `- Question: "${item.question}"\n  - Their Answer: "${item.wrongAnswer}"\n  - Correct Answer: "${item.correctAnswer}"`).join('\n')}
-
-Based on these specific errors, provide a short (2-3 sentences), friendly, and constructive piece of advice. 
-Focus on the core concepts they might be misunderstanding. Do not just repeat the correct answers.
-For example, if they confused 'mitosis' with 'meiosis', explain the key difference briefly.
-Return the advice as a JSON object with a single "advice" key.
-`;
-
-export const QUIZ_ADVICE_SCHEMA = {
-  type: Type.OBJECT,
-  properties: {
-    advice: { type: Type.STRING, description: "Short, constructive advice for the student based on their wrong answers." }
-  },
-  required: ['advice']
-};
