@@ -19,6 +19,7 @@ const QuizView: React.FC<QuizViewProps> = ({ subTopic, onComplete, onBack }) => 
 
   const handleSelectAnswer = (questionIndex: number, option: string) => {
     if (submitted) return;
+    // FIX: Corrected typo from [question-index] to [questionIndex]
     setAnswers(prev => ({ ...prev, [questionIndex]: option }));
   };
   
@@ -88,23 +89,27 @@ const QuizView: React.FC<QuizViewProps> = ({ subTopic, onComplete, onBack }) => 
                 const isCorrect = q.correctAnswer === option;
                 
                 let optionClass = "w-full text-left p-3 border rounded-md transition-colors duration-200 flex items-center justify-between";
+                let icon = null;
+
                 if (submitted) {
-                    if(isCorrect) {
+                    if (isCorrect) {
                         optionClass += " bg-green-500/30 border-green-500 text-white";
+                        icon = <CheckCircleIcon className="w-5 h-5 text-green-400" />;
                     } else if (isSelected && !isCorrect) {
                         optionClass += " bg-red-500/30 border-red-500 text-white";
-                    } else {
-                        optionClass += " border-gray-600";
+                        icon = <XCircleIcon className="w-5 h-5 text-red-400" />;
+                    } else { // Unselected and incorrect
+                        optionClass += " border-gray-600 text-gray-400 opacity-70";
+                        icon = <XCircleIcon className="w-5 h-5 text-gray-500" />;
                     }
                 } else {
-                     optionClass += isSelected ? " bg-indigo-600 border-indigo-500" : " bg-gray-700 border-gray-600 hover:bg-gray-600";
+                    optionClass += isSelected ? " bg-indigo-600 border-indigo-500" : " bg-gray-700 border-gray-600 hover:bg-gray-600";
                 }
 
                 return (
                   <button key={option} onClick={() => handleSelectAnswer(index, option)} className={optionClass} disabled={submitted}>
-                    {option}
-                    {submitted && isCorrect && <CheckCircleIcon className="w-5 h-5 text-green-400" />}
-                    {submitted && isSelected && !isCorrect && <XCircleIcon className="w-5 h-5 text-red-400" />}
+                    <span>{option}</span>
+                    {icon}
                   </button>
                 );
               })}
