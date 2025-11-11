@@ -117,7 +117,7 @@ const FillInTheBlanksGame: React.FC<{ game: Game }> = ({ game }) => {
     return (
         <div className="space-y-4">
             {data.map((item, index) => (
-                <div key={index} className={`flex flex-col sm:flex-row items-center gap-2 p-3 rounded-md transition-colors ${submitted ? (results[index] ? 'bg-green-900/20' : 'bg-red-900/20') : 'bg-gray-800'}`}>
+                <div key={index} className={`flex flex-col sm:flex-row items-center gap-2 p-3 rounded-md border-2 transition-colors ${submitted ? (results[index] ? 'border-green-500 bg-green-900/20' : 'border-red-500 bg-red-900/20') : 'border-gray-700 bg-gray-800'}`}>
                     <p className="flex-grow">{item.sentence.replace('___', '')}</p>
                     <input type="text" value={answers[index]} onChange={e => handleChange(index, e.target.value)} disabled={submitted}
                            className={`px-3 py-1 bg-gray-800 border-2 rounded-md w-full sm:w-auto transition-colors ${submitted ? (results[index] ? 'border-green-500 bg-green-900/30' : 'border-red-500 bg-red-900/30') : 'border-gray-600 focus:border-indigo-500 focus:ring-indigo-500'}`} />
@@ -187,7 +187,7 @@ const TrueFalseGame: React.FC<{ game: Game }> = ({ game }) => {
                 let containerClass = 'p-4 rounded-lg border-2 transition-colors border-gray-700';
                 if(isAnswered) {
                     const wasCorrect = String(userAnswer) === String(item.isTrue);
-                    containerClass = `p-4 rounded-lg border-2 transition-colors ${wasCorrect ? 'border-green-500/50 bg-green-900/20' : 'border-red-500/50 bg-red-900/20'}`;
+                    containerClass = `p-4 rounded-lg border-2 transition-colors ${wasCorrect ? 'border-green-500 bg-green-900/20' : 'border-red-500 bg-red-900/20'}`;
                 }
 
                 return (

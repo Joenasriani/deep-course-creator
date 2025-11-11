@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import type { SubTopic } from '../types';
 import { LightbulbIcon, QuestionMarkCircleIcon, CheckCircleIcon, XCircleIcon } from './icons';
@@ -27,9 +26,16 @@ const InteractiveCheckComponent: React.FC<{ check: SubTopic['tutorialContent']['
     };
     
     const isCorrect = selectedAnswer === check.correctAnswer;
+    
+    const containerClass = `border-2 rounded-lg p-6 mt-8 transition-colors ${
+        submitted 
+        ? (isCorrect ? 'border-green-500 bg-green-900/20' : 'border-red-500 bg-red-900/20')
+        : 'border-gray-700 bg-gray-800'
+    }`;
+
 
     return (
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6 mt-8">
+        <div className={containerClass}>
             <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <QuestionMarkCircleIcon className="w-6 h-6 text-indigo-400" />
                 Check Your Understanding

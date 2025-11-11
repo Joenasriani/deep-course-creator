@@ -55,7 +55,7 @@ const QuizView: React.FC<QuizViewProps> = ({ subTopic, onComplete, onBack }) => 
 
       <div className="space-y-6">
         {quiz.map((q, index) => (
-          <div key={index} className={`p-5 rounded-lg border-2 ${submitted ? (answers[index] === q.correctAnswer ? 'border-green-500/50 bg-green-900/20' : 'border-red-500/50 bg-red-900/20') : 'border-gray-700 bg-gray-800'}`}>
+          <div key={index} className={`p-5 rounded-lg border-2 ${submitted ? (answers[index] === q.correctAnswer ? 'border-green-500 bg-green-900/20' : 'border-red-500 bg-red-900/20') : 'border-gray-700 bg-gray-800'}`}>
             <p className="font-semibold mb-4 text-lg">{index + 1}. {q.question}</p>
             <div className="space-y-2">
               {q.options.map(option => {
